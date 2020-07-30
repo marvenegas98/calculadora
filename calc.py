@@ -2,7 +2,7 @@ import traceback
 import readline
 import operator as op
 
-from python_parser import Parser, a, anyof, maybe, someof
+from parser import Parser, a, anyof, maybe, someof
 
 
 class InterpreterError(Exception):

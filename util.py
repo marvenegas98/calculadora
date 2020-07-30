@@ -1,5 +1,5 @@
 import uuid
-from .parser import Token, Node
+from parser import Token, Node
 
 
 def to_dot(ast):
