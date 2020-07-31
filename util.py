@@ -1,9 +1,9 @@
 import uuid
-from parser import Token, Node
+from analizadorSintactico import Token, Nodo
 
 
-def to_dot(ast):
-    result = [
+def hacer_imagen(ast):
+    resultado = [
         'strict digraph "AST" {',
         'size="16,14"; ratio = fill;'
     ]
@@ -11,22 +11,22 @@ def to_dot(ast):
     
     def format_node(node, uid):
         if isinstance(node, Token):
-            label = '{} [{}]'.format(*map(_escape, (node.name, node.value)))
-        elif isinstance(node, Node):
-            label = '{}'.format(*map(_escape, (node.name,)))
+            label = '{} [{}]'.format(*map(_escape, (node.nombre, node.valor)))
+        elif isinstance(node, Nodo):
+            label = '{}'.format(*map(_escape, (node.nombre,)))
         else:
             raise ValueError("Can't format node {}".format(node))
         return '"{}" [label="{}"];'.format(uid, label)
 
     def walk(node, uid):
-        result.append(format_node(node, uid))
-        if isinstance(node, Node):
+        resultado.append(format_node(node, uid))
+        if isinstance(node, Nodo):
             for i in node.items:
                 child_uid = uuid.uuid4().hex
                 walk(i, child_uid)
-                result.append('"{}" -> "{}";'.format(uid, child_uid))
+                resultado.append('"{}" -> "{}";'.format(uid, child_uid))
 
     uid = uuid.uuid4().hex
     walk(ast, uid)
-    result.append('}')
-    return '\n'.join(result)
+    resultado.append('}')
+    return '\n'.join(resultado)

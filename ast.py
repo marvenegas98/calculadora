@@ -1,25 +1,25 @@
-from parser import Parser, a, anyof, someof, maybe, skip
-from util import to_dot
+from analizadorSintactico import AnalizadorSintactico, a, cualquiera, comparar, alguno, saltar
+from util import hacer_imagen
 
 tokens = (
-    ('\(', 'L_PAR'),
-    ('\)', 'R_PAR'),
+    ('\(', 'PAR_IZQ'),
+    ('\)', 'PAR_DER'),
     ('\,', 'SEP'),
     ('\d+', 'NUM'),
-    ('"\w+"', 'STR')
+    ('"\w+"', 'CADENA')
 )
-grammar = {
-    'EXPR': a(
-        skip('L_PAR'),
-        'VALUE', maybe(someof(skip('SEP'), 'VALUE')),
-        skip('R_PAR')
+gramatica = {
+    'EXPRESION': a(
+        saltar('PAR_IZQ'),
+        'VALOR', comparar(alguno(saltar('SEP'), 'VALOR')),
+        saltar('PAR_DER')
     ),
-    'VALUE': anyof('STR', 'NUM', 'EXPR')
+    'VALOR': cualquiera('CADENA', 'NUM', 'EXPRESION')
 }
-string_to_parse = '(1, 2, ("test", ((3), 4)))'
+hilera_analizar = '(1, 2, ("test", ((3), 4)))'
 
-parser = Parser(tokens, grammar)
-ast = parser.parse('EXPR', string_to_parse)
+analizadorSintactico = AnalizadorSintactico(tokens, gramatica)
+ast = analizadorSintactico.enlazar('EXPRESION', hilera_analizar)
 
 with open('ast.dot', 'w') as f:
-    f.write(to_dot(ast))
+    f.write(hacer_imagen(ast))

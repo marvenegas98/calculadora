@@ -2,20 +2,20 @@ import traceback
 import readline
 import operator as op
 
-from parser import Parser, a, anyof, maybe, someof
+from analizadorSintactico import AnalizadorSintactico, a, cualquiera, comparar, alguno
 
 
-class InterpreterError(Exception):
+class Error(Exception):
     pass
 
-class Interpreter(object):
+class AnalizadorSemantico(object):
 
     def __init__(self):
-        self.un_ops = {
+        self.ops_un = {
             '-': op.neg,
             '+': op.pos
         }
-        self.bin_ops = {
+        self.ops_bin = {
             '*': op.mul,
             '/': op.truediv,
             '+': op.add,
@@ -23,75 +23,76 @@ class Interpreter(object):
         }
         self.vars = {}
 
-    def expr(self, items):
-        result = self.visit(next(items))
+    def expresion(self, items):
+        resultado = self.visitar(next(items))
         op = next(items, None)
         while op is not None:
-            result = self.bin_ops[op.value](result, self.visit(next(items)))
+            resultado = self.ops_bin[op.valor](resultado, self.visitar(next(items)))
             op = next(items, None)
-        return result
+        return resultado
 
-    def term(self, items):
-        return self.expr(items)
+    def termino(self, items):
+        return self.expresion(items)
 
     def factor(self, items):
         item = next(items)
-        if item.name == 'L_PAR':
-            result = self.visit(next(items))
-        elif item.name in ('ADD', 'SUB'):
-            result = self.un_ops[item.value](self.visit(next(items)))
-        elif item.name == 'NAME':
-            if item.value not in self.vars:
-                raise InterpreterError(
-                    'Variable {} is not defined'.format(item.value))
-            result = self.vars[item.value]
+        if item.nombre == 'PAR_IZQ':
+            resultado = self.visitar(next(items))
+        elif item.nombre in ('SUMA', 'RESTA'):
+            resultado = self.ops_un[item.valor](self.visitar(next(items)))
+        elif item.nombre == 'NOMBRE':
+            if item.valor not in self.vars:
+                raise Error(
+                    'Variable {} no esta definida'.format(item.valor))
+            resultado = self.vars[item.valor]
         else:
-            result = float(item.value)
+            resultado = int(item.valor)
         next(items, None)
-        return result
+        return resultado
 
-    def defn(self, items):
-        name = next(items).value.split('=')[0].rstrip()
-        self.vars[name] = self.visit(next(items))
+    def definir(self, items):
+        nombre = next(items).valor.split('=')[0].rstrip()
+        self.vars[nombre] = self.visitar(next(items))
+   
+    def saltar(self, items):
+        return self.visitar(next(items))
 
-    def skip(self, items):
-        return self.visit(next(items))
-
-    def visit(self, node):
-        return getattr(self, node.name.lower(), self.skip)(iter(node.items))
+    def visitar(self, nodo):
+        return getattr(self, nodo.nombre.lower(), self.saltar)(iter(nodo.items))
 
 
 tokens = (
     ('(\d*\.\d+)|(\d+\.\d*)', 'FLOAT'),
-    ('\d+', 'INT'),
-    ('\+', 'ADD'),
-    ('-', 'SUB'),
+    ('\d+', 'ENT'),
+    ('\+', 'SUMA'),
+    ('-', 'RESTA'),
     ('\*', 'MUL'),
     ('/', 'DIV'),
-    ('\)', 'R_PAR'),
-    ('\(', 'L_PAR'),
-    ('\w+\s*=', 'SET'),
-    ('\w+', 'NAME'),
+    ('\)', 'PAR_DER'),
+    ('\(', 'PAR_IZQ'),
+    ('\w+\s*=', 'ASIG'),
+    ('\w+', 'NOMBRE'),
     ('=', 'EQ')
 )
 
-grammar = {
-    'FACTOR': anyof(
-        'FLOAT', 'INT', 'NAME',
-        a(anyof('ADD', 'SUB'), 'FACTOR'),
-        a('L_PAR', 'EXPR', 'R_PAR')),
-    'TERM': a('FACTOR', maybe(someof(anyof('DIV', 'MUL'), 'FACTOR'))),
-    'DEFN': a('SET', 'EXPR'),
-    'EXPR': a('TERM', maybe(someof(anyof('ADD', 'SUB'), 'TERM'))),
-    'PROGRAM': anyof('EXPR', 'DEFN')
+gramatica = {
+    'FACTOR': cualquiera(
+        'FLOAT', 'ENT', 'NOMBRE',
+        a(cualquiera('SUMA', 'RESTA'), 'FACTOR'),
+        a('PAR_IZQ', 'EXPRESION', 'PAR_DER')),
+    'TERMINO': a('FACTOR', comparar(alguno(cualquiera('DIV', 'MUL'), 'FACTOR'))),
+    'DEFINIR': a('ASIG', 'EXPRESION'),
+    'EXPRESION': a('TERMINO', comparar(alguno(cualquiera('SUMA', 'RESTA'), 'TERMINO'))),
+    'PROGRAMA': cualquiera('EXPRESION', 'DEFINIR')
 }
 
-parser = Parser(tokens, grammar)
-interpreter = Interpreter()
+analizadorSintactico = AnalizadorSintactico(tokens, gramatica)
+analizadorSemantico = AnalizadorSemantico()
 
-def calc_eval(text):
-    ast = parser.parse('PROGRAM', text)
-    return interpreter.visit(ast)
+def calc_eval(texto):
+    ast = analizadorSintactico.enlazar('PROGRAMA', texto)
+    print(ast)
+    return analizadorSemantico.visitar(ast)
 
 
 _bold = '\033[;1m{}\033[0;0m'.format
@@ -100,10 +101,10 @@ _red = '\033[1;31m{}\033[0;0m'.format
 if __name__ == '__main__':
     while True:
         try:
-            text = input(_bold('> '))
-            if not text:
+            texto = input(_bold('> '))
+            if not texto:
                 continue
-            rv = calc_eval(text)
+            rv = calc_eval(texto)
             if rv is not None:
                 print(' ', _bold(rv))
         except (KeyboardInterrupt, EOFError):
@@ -111,5 +112,5 @@ if __name__ == '__main__':
         except SyntaxError as exc:
             msg = traceback.format_exception_only(type(exc), exc)
             print(_red(''.join(msg[3:] + msg[1:3])), end='')
-        except (ArithmeticError, InterpreterError) as exc:
+        except (ArithmeticError, Error) as exc:
             print(_red(exc))
