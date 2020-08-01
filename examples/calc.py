@@ -26,7 +26,7 @@ class AnalizadorSemantico(object):
     def expresion(self, items):
         resultado = self.visitar(next(items))
         op = next(items, None)
-        while op is not None and op.valor != ';':
+        while op is not None:
             resultado = self.ops_bin[op.valor](resultado, self.visitar(next(items)))
             op = next(items, None)
         return resultado
@@ -51,26 +51,12 @@ class AnalizadorSemantico(object):
         return resultado
 
     def definir(self, items):
-        
         nombre = next(items).valor.split('=')[0].rstrip()
-        if nombre == 'imprime':
-            raise Error('El nombre de variable {} esta reservado'.format(nombre))
-            
-        else:
-            self.vars[nombre] = self.visitar(next(items))
-        
+        self.vars[nombre] = self.visitar(next(items))
+   
     def saltar(self, items):
         return self.visitar(next(items))
-    def imprimir(self, items):
-        item = next(items)
-        if item.nombre == 'IMPRIME':
-            item = next(items)
-        if item.nombre == 'NOMBRE':
-            if item.valor not in self.vars:
-                raise Error(
-                    'Variable {} no esta definida'.format(item.valor))
-            resultado = self.vars[item.valor]
-            print(resultado)
+
     def visitar(self, nodo):
         return getattr(self, nodo.nombre.lower(), self.saltar)(iter(nodo.items))
 
@@ -85,15 +71,11 @@ tokens = (
     ('\)', 'PAR_DER'),
     ('\(', 'PAR_IZQ'),
     ('\w+\s*=', 'ASIG'),
-    ('imprime','IMPRIME'),
     ('\w+', 'NOMBRE'),
-    ('=', 'EQ'),
-    ('\;','PUNTOYCOMA')
-    
+    ('=', 'EQ')
 )
 
 gramatica = {
-    
     'FACTOR': cualquiera(
         'FLOAT', 'ENT', 'NOMBRE',
         a(cualquiera('SUMA', 'RESTA'), 'FACTOR'),
@@ -101,9 +83,7 @@ gramatica = {
     'TERMINO': a('FACTOR', comparar(alguno(cualquiera('DIV', 'MUL'), 'FACTOR'))),
     'DEFINIR': a('ASIG', 'EXPRESION'),
     'EXPRESION': a('TERMINO', comparar(alguno(cualquiera('SUMA', 'RESTA'), 'TERMINO'))),
-    'PROGRAMA': a(cualquiera('EXPRESION', 'DEFINIR','IMPRIMIR'),'PUNTOYCOMA'),
-    'IMPRIMIR': a('IMPRIME', 'NOMBRE')
-    
+    'PROGRAMA': cualquiera('EXPRESION', 'DEFINIR')
 }
 
 analizadorSintactico = AnalizadorSintactico(tokens, gramatica)
@@ -115,10 +95,8 @@ def calc_eval(texto):
     return analizadorSemantico.visitar(ast)
 
 
-_bold = '\033[;1m{}\033[0;0m'.format
-_red = '\033[1;31m{}\033[0;0m'.format
-
 def run(texto):
+
     try:          
         rv = calc_eval(texto)
         return rv
@@ -131,3 +109,4 @@ def run(texto):
     except (ArithmeticError, Error) as exc:
         #print(exc)
         return exc
+

@@ -1,0 +1,6 @@
+SyntaxError: No se esperaba token ;
+    
+    ^
+, Error en la linea 0
+Variable x no esta definida, Error en la linea 2
+Variable y no esta definida, Error en la linea 3

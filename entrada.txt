@@ -1,0 +1,4 @@
+x= ;
+m = 5;
+c = x + m;
+imprime y;
