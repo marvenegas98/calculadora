@@ -51,7 +51,7 @@ class AnalizadorLexico(object):
     def info_error(self, f_nombre=None):
         pos = self.pos + 1
         hilera = self.hilera
-        num_linea = hilera[:pos].cont(b'\n')
+        num_linea = hilera[:pos].count(b'\n')
         ini_linea = max(hilera.rfind(b'\n'), 0)
         fin_linea = max(hilera.find(b'\n'), len(hilera))
         linea = str(hilera[ini_linea:fin_linea], 'utf-8')
