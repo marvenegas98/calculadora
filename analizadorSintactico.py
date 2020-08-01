@@ -18,6 +18,7 @@ class AnalizadorLexico(object):
         """
         self.patrones = [
             (re.compile(bytes(p, 'utf8')), nombre) for p, nombre in patrones]
+        
 
     def anlex(self, hilera, ignorar_espacios=True):
         """
@@ -62,6 +63,7 @@ class AnalizadorSintactico(object):
     def __init__(self, tokens, gramatica):
         self.analizadorLexico = AnalizadorLexico(tokens)
         self.gramatica = gramatica
+        
         self.cont = 0
 
     def avanzar(self):
@@ -83,13 +85,19 @@ class AnalizadorSintactico(object):
             return token
 
     def regla(self, norma):
+        
         return Nodo(nombre=norma, items=self.gramatica[norma](self))
 
+
     def enlazar(self, norma, texto, ignorar_espacios=True, revisar_eof=True):
+
         self.generador_tokens = self.analizadorLexico.anlex(texto, ignorar_espacios)
+        
         self.token_actual = None
         self.avanzar()
+        
         try:
+            
             resultado = self.regla(norma)
             if revisar_eof:
                 a('EOF')(self)
@@ -174,3 +182,5 @@ def a(*args):
                     resultado.extend(arg)
         return resultado
     return inner
+    
+		

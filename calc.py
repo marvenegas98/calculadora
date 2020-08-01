@@ -56,7 +56,16 @@ class AnalizadorSemantico(object):
    
     def saltar(self, items):
         return self.visitar(next(items))
-
+    def imprimir(self, items):
+        item = next(items)
+        if item.nombre == 'IMPRIME':
+            item = next(items)
+        if item.nombre == 'NOMBRE':
+            if item.valor not in self.vars:
+                raise Error(
+                    'Variable {} no esta definida'.format(item.valor))
+            resultado = self.vars[item.valor]
+            print(resultado)
     def visitar(self, nodo):
         return getattr(self, nodo.nombre.lower(), self.saltar)(iter(nodo.items))
 
@@ -71,11 +80,14 @@ tokens = (
     ('\)', 'PAR_DER'),
     ('\(', 'PAR_IZQ'),
     ('\w+\s*=', 'ASIG'),
+    ('imprime','IMPRIME'),
     ('\w+', 'NOMBRE'),
     ('=', 'EQ')
+    
 )
 
 gramatica = {
+    
     'FACTOR': cualquiera(
         'FLOAT', 'ENT', 'NOMBRE',
         a(cualquiera('SUMA', 'RESTA'), 'FACTOR'),
@@ -83,7 +95,9 @@ gramatica = {
     'TERMINO': a('FACTOR', comparar(alguno(cualquiera('DIV', 'MUL'), 'FACTOR'))),
     'DEFINIR': a('ASIG', 'EXPRESION'),
     'EXPRESION': a('TERMINO', comparar(alguno(cualquiera('SUMA', 'RESTA'), 'TERMINO'))),
-    'PROGRAMA': cualquiera('EXPRESION', 'DEFINIR')
+    'PROGRAMA': cualquiera('EXPRESION', 'DEFINIR','IMPRIMIR'),
+    'IMPRIMIR': a('IMPRIME', 'NOMBRE')
+    
 }
 
 analizadorSintactico = AnalizadorSintactico(tokens, gramatica)
@@ -105,6 +119,7 @@ if __name__ == '__main__':
             if not texto:
                 continue
             rv = calc_eval(texto)
+            
             if rv is not None:
                 print(' ', _bold(rv))
         except (KeyboardInterrupt, EOFError):
