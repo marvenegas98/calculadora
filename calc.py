@@ -26,7 +26,7 @@ class AnalizadorSemantico(object):
     def expresion(self, items):
         resultado = self.visitar(next(items))
         op = next(items, None)
-        while op is not None:
+        while op is not None and op.valor != ';':
             resultado = self.ops_bin[op.valor](resultado, self.visitar(next(items)))
             op = next(items, None)
         return resultado
@@ -87,7 +87,8 @@ tokens = (
     ('\w+\s*=', 'ASIG'),
     ('imprime','IMPRIME'),
     ('\w+', 'NOMBRE'),
-    ('=', 'EQ')
+    ('=', 'EQ'),
+    ('\;','PUNTOYCOMA')
     
 )
 
@@ -100,7 +101,7 @@ gramatica = {
     'TERMINO': a('FACTOR', comparar(alguno(cualquiera('DIV', 'MUL'), 'FACTOR'))),
     'DEFINIR': a('ASIG', 'EXPRESION'),
     'EXPRESION': a('TERMINO', comparar(alguno(cualquiera('SUMA', 'RESTA'), 'TERMINO'))),
-    'PROGRAMA': cualquiera('EXPRESION', 'DEFINIR','IMPRIMIR'),
+    'PROGRAMA': a(cualquiera('EXPRESION', 'DEFINIR','IMPRIMIR'),'PUNTOYCOMA'),
     'IMPRIMIR': a('IMPRIME', 'NOMBRE')
     
 }
