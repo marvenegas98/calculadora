@@ -51,9 +51,14 @@ class AnalizadorSemantico(object):
         return resultado
 
     def definir(self, items):
+        
         nombre = next(items).valor.split('=')[0].rstrip()
-        self.vars[nombre] = self.visitar(next(items))
-   
+        if nombre == 'imprime':
+            raise Error('El nombre de variable {} esta reservado'.format(nombre))
+            
+        else:
+            self.vars[nombre] = self.visitar(next(items))
+        
     def saltar(self, items):
         return self.visitar(next(items))
     def imprimir(self, items):
