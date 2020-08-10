@@ -67,6 +67,6 @@ class AnalizadorSemantico(object):
                 raise Error(
                     'Variable {} no esta definida'.format(item.valor))
             resultado = self.vars[item.valor]
-            return resultado
+            return int(resultado)
     def visitar(self, nodo):
         return getattr(self, nodo.nombre.lower(), self.saltar)(iter(nodo.items))
