@@ -4,7 +4,7 @@ import sys
 file1 = open("entrada.txt", 'r') 
 file2 = open("salida.txt", 'w+') 
 lines = file1.readlines()
-num_linea = 0
+num_linea = 1
 resultado = ""
 
 for line in lines:
@@ -13,9 +13,11 @@ for line in lines:
 
     if (not str(result).isdigit()) and (str(result) != "None"):
         resultado += str(result)+", Error en la linea "+str(num_linea)
-        
+        file2.write(resultado)
+        file2.write('\n')
 
-    if str(result) != "None":
+    if str(result) != "None" and str(result).isdigit() :
+        resultado = str(result)
         file2.write(resultado)
         file2.write('\n')
     resultado = ""
