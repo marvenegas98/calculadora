@@ -1,7 +1,7 @@
 import calc
 import sys
 
-file1 = open("entrada.txt", 'r') 
+file1 = open(sys.argv[1], 'r')
 file2 = open("salida.txt", 'w+') 
 lines = file1.readlines()
 num_linea = 1

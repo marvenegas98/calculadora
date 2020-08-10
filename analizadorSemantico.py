@@ -26,7 +26,7 @@ class AnalizadorSemantico(object):
         while op is not None and op.valor != ';':
             resultado = self.ops_bin[op.valor](resultado, self.visitar(next(items)))
             op = next(items, None)
-        return resultado
+        return int(resultado)
 
     def termino(self, items):
         return self.expresion(items)
