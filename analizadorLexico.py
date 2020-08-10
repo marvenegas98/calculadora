@@ -40,7 +40,7 @@ class AnalizadorLexico(object):
                     self.pos += sobrante
                     break
             else:
-                self.error('Caracter Ilegal')
+                self.error('Etapa: Análisis Lexico: Caracter Ilegal')
         yield Token('EOF', None)
 
     def error(self, mensaje):

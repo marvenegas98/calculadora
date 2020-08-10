@@ -19,9 +19,9 @@ class AnalizadorSintactico(object):
 
     def error(self):
         if self.token_actual.valor is not None:
-            mensaje = 'No se esperaba token {}'.format(self.token_actual.valor)
+            mensaje = 'Etapa: Análisis Sintáctico: No se esperaba token {}'.format(self.token_actual.valor)
         else:
-            mensaje = 'No se esperaba EOF'
+            mensaje = 'Etapa: Análisis Sintáctico: No se esperaba EOF'
         self.analizadorLexico.error(mensaje)
 
     def eat(self, nombre_token):

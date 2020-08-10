@@ -40,7 +40,7 @@ class AnalizadorSemantico(object):
         elif item.nombre == 'NOMBRE':
             if item.valor not in self.vars:
                 raise Error(
-                    'Variable {} no esta definida'.format(item.valor))
+                    'Etapa: Análisis Semantico: Variable {} no esta definida'.format(item.valor))
             resultado = self.vars[item.valor]
         else:
             resultado = int(item.valor)
@@ -51,7 +51,7 @@ class AnalizadorSemantico(object):
         
         nombre = next(items).valor.split('=')[0].rstrip()
         if nombre == 'imprime':
-            raise Error('El nombre de variable {} esta reservado'.format(nombre))
+            raise Error('Etapa: Análisis Semantico: El nombre de variable {} esta reservado'.format(nombre))
             
         else:
             self.vars[nombre] = self.visitar(next(items))
@@ -65,7 +65,7 @@ class AnalizadorSemantico(object):
         if item.nombre == 'NOMBRE':
             if item.valor not in self.vars:
                 raise Error(
-                    'Variable {} no esta definida'.format(item.valor))
+                    'Etapa: Análisis Semantico: Variable {} no esta definida'.format(item.valor))
             resultado = self.vars[item.valor]
             return resultado
     def visitar(self, nodo):

@@ -48,7 +48,7 @@ analizadorSemantico = AnalizadorSemantico()
 
 def calc_eval(texto):
     ast = analizadorSintactico.enlazar('PROGRAMA', texto)
-    print(ast)
+    #print(ast)
     return analizadorSemantico.visitar(ast)
 
 
@@ -59,6 +59,7 @@ def run(texto):
     try:          
         rv = calc_eval(texto)
         return rv
+        print (rv)
     except (KeyboardInterrupt, EOFError):
         exit(0)
     except SyntaxError as exc:
