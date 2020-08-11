@@ -48,7 +48,7 @@ analizadorSemantico = AnalizadorSemantico()
 
 def calc_eval(texto):
     ast = analizadorSintactico.enlazar('PROGRAMA', texto)
-    #print(ast)
+    print(ast)
     return analizadorSemantico.visitar(ast)
 
 

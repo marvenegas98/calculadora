@@ -1,3 +1,4 @@
 Etapa: Análisis Léxico: Completada correctamente
 Etapa: Análisis Sintactico: Completada correctamente
-Etapa: Análisis Semantico: Variable x no esta definida, Error en la linea 1
+Etapa: Análisis Semantico: Completada correctamente
+Resultado de la operacion: 8
